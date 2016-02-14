@@ -55,6 +55,9 @@ public class IRCBot extends PircBot {
 					help(channel);
 				}
 			}
+			if (parts[1].equals("spin")) {
+				mm.getSpinner().commandHandler(channel, users.get(sender), this);
+			}
 		}
 	}
 	
@@ -72,7 +75,7 @@ public class IRCBot extends PircBot {
 			sendMessage(channel, "Tells you your balance.");
 		}
 		if (cmd.equals("redrings")) {
-			sendMessage(channel, "Tells you your red ring count. These are used to bet on Spinner rounds, snd can be purchased using \"" + prefix + " buy <amount>\" for 200 rings.");
+			sendMessage(channel, "Tells you your red ring count. These are used to bet on Spinner rounds, and can be purchased using \"" + prefix + " buy <amount>\" for 200 rings.");
 		}
 		if (cmd.equals("buy")) {
 			sendMessage(channel, "Allows you to buy red rings. Each costs 200 rings, and allows you to bet on Spinner rounds.");
