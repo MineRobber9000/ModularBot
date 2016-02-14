@@ -48,6 +48,13 @@ public class IRCBot extends PircBot {
 					help(channel, "buy");
 				}
 			}
+			if (parts[1].equals("help")) {
+				if (parts.length == 3 && !parts[2].equals("")) {
+					help(channel, parts[2]);
+				} else {
+					help(channel);
+				}
+			}
 		}
 	}
 	
@@ -56,8 +63,20 @@ public class IRCBot extends PircBot {
 		sendMessage(channel, "To get help for a specific command, type \"" + prefix + " help <command>");
 	}
 	
-	private void help (String channel, String cmd) {
-		//stuff
-		help(channel);
+	protected void onMessage(String channel, String sender, String login, String hostname, String message) {
+		parseCmd(channel, sender, message);
+	}
+
+	private void help(String channel, String cmd) {
+		if (cmd.equals("balance")) {
+			sendMessage(channel, "Tells you your balance.");
+		}
+		if (cmd.equals("redrings")) {
+			sendMessage(channel, "Tells you your red ring count. These are used to bet on Spinner rounds, snd can be purchased using \"" + prefix + " buy <amount>\" for 200 rings.");
+		}
+		if (cmd.equals("buy")) {
+			sendMessage(channel, "Allows you to buy red rings. Each costs 200 rings, and allows you to bet on Spinner rounds.");
+			sendMessage(channel, "Usage: \"" + prefix + " buy <amount>\".");
+		}
 	}
 }
