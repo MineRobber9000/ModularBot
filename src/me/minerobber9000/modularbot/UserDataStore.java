@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 public class UserDataStore {
 	
-	ArrayList<CUser> users = new ArrayList<CUser>();
+	ArrayList<CUser> users;
 
 	public UserDataStore() {
-		System.out.println("UserDataStore initialized.");
+		this.users = new ArrayList<CUser>();
 	}
 	
 	public void put(String user, PermLevel perm) {
@@ -34,6 +34,17 @@ public class UserDataStore {
 			}
 		}
 		return u;
+	}
+	
+	public boolean isRegistered(String nick) {
+		boolean ret = false;
+		for (CUser u : users) {
+			if (u.name == nick) {
+				ret = true;
+				break;
+			}
+		}
+		return ret;
 	}
 
 }

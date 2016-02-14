@@ -1,6 +1,8 @@
 package me.minerobber9000.modularbot;
 
 import org.jibble.pircbot.PircBot;
+import org.jibble.pircbot.User;
+
 import me.minerobber9000.modularbot.modules.*;
 
 public class IRCBot extends PircBot {
@@ -12,6 +14,7 @@ public class IRCBot extends PircBot {
 	public IRCBot(String name, String OP) {
 		this.setName(name);
 		users.put(OP, PermLevel.OWNER);
+		users.put("FeignedDish", PermLevel.USER);
 	}
 	
 	public IRCBot(String name, String OP, String pre) {
@@ -24,6 +27,7 @@ public class IRCBot extends PircBot {
 		message = message.toLowerCase();
 		if (message.startsWith(prefix)) {
 			String[] parts = message.split(" ");
+			System.out.println(message.split(" ", 3)[2]);
 			if (parts[1].equals("balance")) {
 				int balance = users.get(sender).balance;
 				sendMessage(channel, sender + " has " + balance + " rings." + ((balance >= 200) ? " They can buy a Red Ring." : ""));
@@ -52,6 +56,10 @@ public class IRCBot extends PircBot {
 				if (parts.length == 3 && !parts[2].equals("")) {
 					help(channel, parts[2], sender);
 				} else {
+					if (isMod(sender) && (parts.length == 3 && parts[2].equals("asUser"))) {
+						help(channel, "FeignedDish");
+						return;
+					}
 					help(channel, sender);
 				}
 			}
@@ -71,13 +79,32 @@ public class IRCBot extends PircBot {
 					this.quitServer("I am dead.");
 					System.exit(0);
 				}
-				if (parts[1].equals("add")){
-					CUser to = users.get(parts[2]);
-					if (parts[3].equals("rings")) {
-						to.balance += Integer.valueOf(parts[4]);
+//				if (parts[1].equals("add")){
+//					if (!parts[2].equals(sender)) {
+//						CUser to = users.get(parts[2]);
+//						if (parts[3].equals("rings")) {
+//							to.balance += Integer.valueOf(parts[4]);
+//						}
+//						if (parts[3].equals("redrings")) {
+//							to.redrings += Integer.valueOf(parts[4]);
+//						}
+//					} else {
+//						CUser to = users.get(sender);
+//						if (parts[3].equals("rings")) {
+//							to.balance += Integer.valueOf(parts[4]);
+//						}
+//						if (parts[3].equals("redrings")) {
+//							to.redrings += Integer.valueOf(parts[4]);
+//						}
+//					}
+//				}
+				if (parts[1].equals("giveself")) {
+					CUser to = users.get(sender);
+					if (parts[2].equals("rings")) {
+						to.balance += Integer.valueOf(parts[3]);
 					}
-					if (parts[3].equals("redrings")) {
-						to.redrings += Integer.valueOf(parts[4]);
+					if (parts[2].equals("redrings")) {
+						to.redrings += Integer.valueOf(parts[3]);
 					}
 				}
 			}
@@ -85,11 +112,12 @@ public class IRCBot extends PircBot {
 	}
 	
 	private void help(String channel, String sender) {
-		sendMessage(channel, "Commands: balance, redrings, buy, pay" + (isMod(sender) ? ", kill, give" : ""));
+		sendMessage(channel, "Commands: balance, redrings, buy, pay" + (isMod(sender) ? ", kill, giveself" : ""));
 		sendMessage(channel, "To get help for a specific command, type \"" + prefix + " help <command>");
 	}
 	
 	protected void onMessage(String channel, String sender, String login, String hostname, String message) {
+		System.out.println("[" + channel + "] <" + sender + "> " + message);
 		parseCmd(channel, sender, message);
 	}
 	
@@ -121,4 +149,34 @@ public class IRCBot extends PircBot {
 			}
 		}
 	}
+	
+//	private boolean isRegistered(String nick) {
+//		if (users.isRegistered(nick)) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
+//
+//	@Override
+//	protected void onUserList(String channel, User[] users) {
+//		for (User u : users) {
+//			String nick = u.getNick();
+//			if (!isRegistered(nick)) {
+//				this.users.put(nick, PermLevel.USER);
+//			}
+//		}
+//	}
+//
+//	@Override
+//	protected void onJoin(String channel, String sender, String login, String hostname) {
+//		if (!sender.equals(getNick()) && !isRegistered(sender)) {
+//			this.users.put(sender, PermLevel.USER);
+//		}
+//	}
+//
+//	@Override
+//	protected void onNickChange(String oldNick, String login, String hostname, String newNick) {
+//		users.get(oldNick).name = newNick;
+//	}
 }

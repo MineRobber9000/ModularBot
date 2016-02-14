@@ -5,7 +5,6 @@ public class ModuleManager {
 	Spinner spinner;
 
 	public ModuleManager() {
-		System.out.println("ModuleManager initialized");
 		spinner = new Spinner();
 	}
 	
