@@ -45,32 +45,63 @@ public class IRCBot extends PircBot {
 						sendMessage(channel, "You don't have enough rings!");
 					}
 				} else {
-					help(channel, "buy");
+					help(channel, "buy", sender);
 				}
 			}
 			if (parts[1].equals("help")) {
 				if (parts.length == 3 && !parts[2].equals("")) {
-					help(channel, parts[2]);
+					help(channel, parts[2], sender);
 				} else {
-					help(channel);
+					help(channel, sender);
 				}
 			}
 			if (parts[1].equals("spin")) {
 				mm.getSpinner().commandHandler(channel, users.get(sender), this);
 			}
+			if (parts[1].equals("pay")) {
+				CUser from = users.get(sender);
+				CUser to = users.get(parts[2]);
+				int amt = Integer.valueOf(parts[3]);
+				from.balance -= amt;
+				to.balance += amt;
+				sendMessage(channel, "Completed transaction between " + sender + " and " + parts[2] + " for " + amt + " rings.");
+			}
+			if (isMod(sender)) {
+				if (parts[1].equals("kill")) {
+					this.quitServer("I am dead.");
+					System.exit(0);
+				}
+				if (parts[1].equals("add")){
+					CUser to = users.get(parts[2]);
+					if (parts[3].equals("rings")) {
+						to.balance += Integer.valueOf(parts[4]);
+					}
+					if (parts[3].equals("redrings")) {
+						to.redrings += Integer.valueOf(parts[4]);
+					}
+				}
+			}
 		}
 	}
 	
-	private void help(String channel) {
-		sendMessage(channel, "Commands: balance, redrings, buy");
+	private void help(String channel, String sender) {
+		sendMessage(channel, "Commands: balance, redrings, buy, pay" + (isMod(sender) ? ", kill, give" : ""));
 		sendMessage(channel, "To get help for a specific command, type \"" + prefix + " help <command>");
 	}
 	
 	protected void onMessage(String channel, String sender, String login, String hostname, String message) {
 		parseCmd(channel, sender, message);
 	}
+	
+	private boolean isMod(String sender) {
+		if (users.get(sender).perm == PermLevel.BOTMOD || users.get(sender).perm == PermLevel.OWNER) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-	private void help(String channel, String cmd) {
+	private void help(String channel, String cmd, String sender) {
 		if (cmd.equals("balance")) {
 			sendMessage(channel, "Tells you your balance.");
 		}
@@ -80,6 +111,14 @@ public class IRCBot extends PircBot {
 		if (cmd.equals("buy")) {
 			sendMessage(channel, "Allows you to buy red rings. Each costs 200 rings, and allows you to bet on Spinner rounds.");
 			sendMessage(channel, "Usage: \"" + prefix + " buy <amount>\".");
+		}
+		if (cmd.equals("spin")) {
+			sendMessage(channel, "Spin the wheel, and test your fate!");
+		}
+		if (isMod(sender)) {
+			if (cmd.equals("kill")) {
+				sendMessage(channel, "Terminates the bot. Only usable by mods or the owner.");
+			}
 		}
 	}
 }
